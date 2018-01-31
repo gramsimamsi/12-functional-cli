@@ -4,6 +4,7 @@ import de.fhro.inf.prg3.a12.icndb.JokeGenerator;
 import de.fhro.inf.prg3.a12.model.JokeDto;
 import de.fhro.inf.prg3.a12.model.ResponseWrapper;
 
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
@@ -23,6 +24,7 @@ public abstract class App {
         boolean shouldQuit = false;
         int jokeCount;
         int skipCount;
+        String categoryFilter;
 
         /* loop until the the user wants to quit */
         do {
@@ -31,11 +33,17 @@ public abstract class App {
 
             Stream<ResponseWrapper<JokeDto>> jokesSource = readJokeSource();
 
-            /* TODO consume the `jokesSource`
+            /* DONE: consume the `jokesSource`
              * filter it for non null objects
              * use `skip` and `limit` to retrieve the required elements
              * use `map` to unwrap the ResponseWrapper value
              * and print the jokes to the STDOUT */
+            jokesSource.filter(Objects::nonNull)
+                    .skip(skipCount)
+                    .limit(jokeCount)
+                    .map(ResponseWrapper::getValue)
+                    .map(JokeDto::getJoke)
+                    .forEach(System.out::println);
 
             System.out.println("If you want to quit press [Q] otherwise press [C] to continue.");
             String input = inputScanner.next();
@@ -61,6 +69,23 @@ public abstract class App {
                 if (input >= 0) return input;
             } catch (Exception e) {
                 System.out.println("Error while reading integer.");
+            }
+        } while (true);
+    }
+
+    /**
+     * Utility method to read a String
+     * @param message message provided to the user
+     * @return read String value
+     */
+    private static String readString(String message) {
+        System.out.println(message);
+        do {
+            try {
+                String input = inputScanner.next();
+                if (input.length() > 0) return input;
+            } catch (Exception e) {
+                System.out.println("Error while reading String.");
             }
         } while (true);
     }
